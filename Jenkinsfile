@@ -21,7 +21,7 @@ pipeline {
             script {
                 openshift.withCluster() {
                     openshift.withProject() {
-                      //openshift.selector("all", [ app : appName ]).delete()
+                      openshift.selector("all", [ app : appName ]).delete()
                     }
                 }
             }
@@ -32,15 +32,16 @@ pipeline {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
- //                 if (openshift.selector("bc", appName).exists()) {
- //                   def buildSelector = openshift.startBuild(appName).narrow('bc')
- //                   def logs = buildSelector.logs('-f')
- //                 } else {
+                  if (openshift.selector("bc", appName).exists()) {
+                    def buildSelector = openshift.startBuild(appName).narrow('bc')
+                    sleep 3
+                    def logs = buildSelector.logs('-f')
+                  } else {
                     def app = openshift.newApp("fabric8/s2i-java~https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
-                    sleep 5
+                    sleep 3
                     def bc = app.narrow('bc')
                     def logs = bc.logs('-f')
- //                   }
+                    }
                }
             }
         }
