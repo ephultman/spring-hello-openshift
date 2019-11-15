@@ -1,8 +1,6 @@
 def appeName = 'spring-hello'
 pipeline {
-  node {
-    any
-  }
+  agent any
   options {
     timeout(time: 20, unit: 'MINUTES')
   }
