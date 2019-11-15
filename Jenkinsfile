@@ -5,7 +5,7 @@ pipeline {
     timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-    stage('preamble') {
+    stage('Preamble') {
         steps {
             script {
                 openshift.withCluster() {
@@ -16,7 +16,7 @@ pipeline {
             }
         }
     }
-    stage('cleanup') {
+    stage('Cleanup') {
           steps {
             script {
                 openshift.withCluster() {
@@ -27,17 +27,19 @@ pipeline {
             }
           }
         }
-//    stage('create') {
-//      steps {
-//        script {
-//            openshift.withCluster() {
-//                openshift.withProject() {
-//                  openshift.newApp("https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'")
-//                }
-//            }
-//        }
-//      }
-//    }
+    stage('Create Build Config') {
+      steps {
+        script {
+            openshift.withCluster() {
+                openshift.withProject() {
+                  if !openshift.selector("bc", appName).exists() {
+                    openshift.newApp("https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'")
+                    }
+               }
+            }
+        }
+      }
+    }
     stage('build') {
       steps {
         script {
