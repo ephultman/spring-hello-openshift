@@ -37,6 +37,7 @@ pipeline {
  //                   def logs = buildSelector.logs('-f')
  //                 } else {
                     def app = openshift.newApp("fabric8/s2i-java~https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
+                    sleep 5
                     def bc = app.narrow('bc')
                     def logs = bc.logs('-f')
  //                   }
