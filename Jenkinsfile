@@ -21,7 +21,7 @@ pipeline {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
-                  openshift.newApp("https://github.com/ephultman/spring-hello-openshift")
+                  openshift.newApp("https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'")
                 }
             }
         }
