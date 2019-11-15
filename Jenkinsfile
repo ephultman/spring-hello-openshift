@@ -1,25 +1,15 @@
 def appName = 'spring-hello'
+def DEV_ENV = 'development'
 pipeline {
   agent any
   options {
     timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-    stage('Preamble') {
-        steps {
-            script {
-                openshift.withCluster() {
-                    openshift.withProject() {
-                        echo "Using project: ${openshift.project()}"
-                    }
-                }
-            }
-        }
-    }
     stage('Cleanup') {
           steps {
             script {
-                openshift.withCluster() {
+                openshift.withCluster(DEV_ENV) {
                     openshift.withProject() {
                       openshift.selector("all", [ app : appName ]).delete()
                     }
@@ -30,7 +20,7 @@ pipeline {
     stage('Create/Poke Build Config') {
       steps {
         script {
-            openshift.withCluster() {
+            openshift.withCluster(DEV_ENV) {
                 openshift.withProject() {
                   if (openshift.selector("bc", appName).exists()) {
                     def buildSelector = openshift.startBuild(appName).narrow('bc')
@@ -51,7 +41,7 @@ pipeline {
       steps {
         script {
             openshift.withCluster() {
-                openshift.withProject() {
+                openshift.withProject(DEV_ENV) {
                   def bc = openshift.selector("bc", appName)
                   def builds = openshift.selector("bc", appName).related('builds')
                   timeout(5) {
@@ -68,7 +58,7 @@ pipeline {
       steps {
         script {
             openshift.withCluster() {
-                openshift.withProject() {
+                openshift.withProject(DEV_ENV) {
                   def rm = openshift.selector("dc", appName).rollout()
                   timeout(5) {
                     openshift.selector("dc", appName).related('pods').untilEach(1) {
@@ -84,7 +74,7 @@ pipeline {
       steps {
         script {
             openshift.withCluster() {
-                openshift.withProject() {
+                openshift.withProject(DEV_ENV) {
                   openshift.tag("${appName}:latest", "${appName}-dev:latest")
                 }
             }
