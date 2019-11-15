@@ -32,7 +32,10 @@ pipeline {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
-                  if (!openshift.selector("bc", appName).exists()) {
+
+                  if (openshift.selector("bc", appName).exists()) {
+                    openshift.startBuild(appName)
+                  } else {
                     openshift.newApp("fabric8/s2i-java~https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
                     }
                }
@@ -77,7 +80,7 @@ pipeline {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
-                  openshift.tag("${appName}:latest")
+                  openshift.tag("${appName}:latest", "${appName}-dev:latest")
                 }
             }
         }
