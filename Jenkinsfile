@@ -33,7 +33,7 @@ pipeline {
             openshift.withCluster() {
                 openshift.withProject() {
                   if (openshift.selector("bc", appName).exists()) {
-                    def buildSelector = openshift.startBuild(appName)
+                    def buildSelector = openshift.startBuild(appName).narrow('bc')
                     def logs = buildSelector.logs('-f')
                   } else {
                     def app = openshift.newApp("fabric8/s2i-java~https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
