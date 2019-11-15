@@ -1,4 +1,4 @@
-def appeName = 'spring-hello'
+def appName = 'spring-hello'
 pipeline {
   agent any
   options {
