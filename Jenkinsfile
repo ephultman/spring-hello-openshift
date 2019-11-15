@@ -27,17 +27,17 @@ pipeline {
             }
           }
         }
-    stage('create') {
-      steps {
-        script {
-            openshift.withCluster() {
-                openshift.withProject() {
-                  openshift.newApp("https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'")
-                }
-            }
-        }
-      }
-    }
+//    stage('create') {
+//      steps {
+//        script {
+//            openshift.withCluster() {
+//                openshift.withProject() {
+//                  openshift.newApp("https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'")
+//                }
+//            }
+//        }
+//      }
+//    }
     stage('build') {
       steps {
         script {
