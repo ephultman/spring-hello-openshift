@@ -33,7 +33,7 @@ pipeline {
             openshift.withCluster() {
                 openshift.withProject() {
                   if (!openshift.selector("bc", appName).exists()) {
-                    openshift.newApp("https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'")
+                    openshift.newApp("https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
                     }
                }
             }
