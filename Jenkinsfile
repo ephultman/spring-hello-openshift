@@ -9,8 +9,8 @@ pipeline {
     stage('Cleanup') {
           steps {
             script {
-                openshift.withCluster(DEV_ENV) {
-                    openshift.withProject() {
+                openshift.withCluster() {
+                    openshift.withProject(DEV_ENV) {
                       openshift.selector("all", [ app : appName ]).delete()
                     }
                 }
@@ -20,8 +20,8 @@ pipeline {
     stage('Create/Poke Build Config') {
       steps {
         script {
-            openshift.withCluster(DEV_ENV) {
-                openshift.withProject() {
+            openshift.withCluster() {
+                openshift.withProject(DEV_ENV) {
                   if (openshift.selector("bc", appName).exists()) {
                     def buildSelector = openshift.startBuild(appName).narrow('bc')
                     sleep 3
