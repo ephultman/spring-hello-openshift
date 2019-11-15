@@ -1,6 +1,6 @@
 def appeName = 'spring-hello'
 pipeline {
-  agent {
+  node {
     any
   }
   options {
