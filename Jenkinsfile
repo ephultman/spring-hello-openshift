@@ -16,6 +16,17 @@ pipeline {
             }
         }
     }
+    stage('cleanup') {
+          steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject() {
+                      openshift.selector("all", [ app : appName ]).delete()
+                    }
+                }
+            }
+          }
+        }
     stage('create') {
       steps {
         script {
