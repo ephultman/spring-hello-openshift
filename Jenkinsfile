@@ -27,27 +27,30 @@ pipeline {
             }
           }
         }
-    stage('Create Build Config') {
+    stage('Create/Poke Build Config') {
       steps {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
-
                   if (openshift.selector("bc", appName).exists()) {
-                    openshift.startBuild(appName)
+                    def buildSelector = openshift.startBuild(appName)
+                    def logs = buildSelector.logs('-f')
                   } else {
-                    openshift.newApp("fabric8/s2i-java~https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
+                    def app = openshift.newApp("fabric8/s2i-java~https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
+                    def bc = app.narrow('bc')
+                    def logs = bc.logs('-f')
                     }
                }
             }
         }
       }
     }
-    stage('build') {
+    stage('Confirm Build') {
       steps {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
+                  def bc = openshift.selector("bc", appName)
                   def builds = openshift.selector("bc", appName).related('builds')
                   timeout(5) {
                     builds.untilEach(1) {
@@ -59,7 +62,7 @@ pipeline {
         }
       }
     }
-    stage('deploy') {
+    stage('Deploy') {
       steps {
         script {
             openshift.withCluster() {
@@ -75,7 +78,7 @@ pipeline {
         }
       }
     }
-    stage('tag') {
+    stage('Tag Image') {
       steps {
         script {
             openshift.withCluster() {
