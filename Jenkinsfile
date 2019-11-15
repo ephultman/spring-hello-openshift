@@ -33,7 +33,7 @@ pipeline {
             openshift.withCluster() {
                 openshift.withProject() {
                   if (!openshift.selector("bc", appName).exists()) {
-                    openshift.newApp("https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source", "--allow-missing-images")
+                    openshift.newApp("fabric8/s2i-java~https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
                     }
                }
             }
