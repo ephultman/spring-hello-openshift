@@ -1,5 +1,8 @@
 def appName = 'spring-hello'
 def DEV_ENV = 'development'
+def S2I_IMAGE = 'fabric8/s2i-java'
+def REPO_URL = 'https://github.com/ephultman/spring-hello-openshift'
+
 pipeline {
   agent any
   options {
@@ -27,7 +30,7 @@ pipeline {
                     sleep 3
                     def logs = buildSelector.logs('-f')
                   } else {
-                    def app = openshift.newApp("fabric8/s2i-java~https://github.com/ephultman/spring-hello-openshift", "--name='${appName}'", "--strategy=source")
+                    def app = openshift.newApp("${S2I_IMAGE}~${REPO_URL}", "--name='${appName}'", "--strategy=source")
                     sleep 3
                     def bc = app.narrow('bc')
                     def logs = bc.logs('-f')
@@ -43,7 +46,7 @@ pipeline {
             openshift.withCluster() {
                 openshift.withProject(DEV_ENV) {
                   def bc = openshift.selector("bc", appName)
-                  def builds = openshift.selector("bc", appName).related('builds')
+                  def builds = bc.related('builds')
                   timeout(5) {
                     builds.untilEach(1) {
                       return (it.object().status.phase == "Complete")
