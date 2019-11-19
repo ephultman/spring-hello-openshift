@@ -9,33 +9,39 @@ pipeline {
     timeout(time: 20, unit: 'MINUTES')
   }
   stages {
-    stage('Cleanup') {
+    stage('Create Dev Configs') {
+          when {
+            not {
+              expression {
+                openshift.withCluster() {
+                  openshift.withProject(DEV_ENV) {
+                    return openshift.selector("bc", appName).exists()
+                  }
+                }
+              }
+            }
+          }
           steps {
             script {
                 openshift.withCluster() {
                     openshift.withProject(DEV_ENV) {
-                      openshift.selector("all", [ app : appName ]).delete()
+                      def app = openshift.newApp("${S2I_IMAGE}~${REPO_URL}", "--name='${appName}'", "--strategy=source")
+                      sleep 5
+                      def logs = app.narrow('bc').logs('-f')
                     }
                 }
             }
           }
         }
-    stage('Create/Poke Build Config') {
+    stage('Start Build') {
       steps {
         script {
             openshift.withCluster() {
                 openshift.withProject(DEV_ENV) {
-                  if (openshift.selector("bc", appName).exists()) {
                     def buildSelector = openshift.startBuild(appName).narrow('bc')
-                    sleep 3
+                    sleep 5
                     def logs = buildSelector.logs('-f')
-                  } else {
-                    def app = openshift.newApp("${S2I_IMAGE}~${REPO_URL}", "--name='${appName}'", "--strategy=source")
-                    sleep 3
-                    def bc = app.narrow('bc')
-                    def logs = bc.logs('-f')
-                    }
-               }
+                }
             }
         }
       }
